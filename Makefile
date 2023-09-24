@@ -1,7 +1,9 @@
 CC=gcc
 CFLAGS=-g3 -Wall YAML_DECLARE_STATIC=1
 
-all: clean main
+all: clean libyaml apr main
+
+onlyme: clean main
 
 main: main.o mastercfg.o 
 	$(CC) main.o mastercfg.o -L./third_party/yaml/src/.libs -o eyeball -lyaml
@@ -11,6 +13,10 @@ main.o: main.c
 
 mastercfg.o: mastercfg.c
 	$(CC) -c mastercfg.c 
+
+apr:
+	cd ./third_party/apr && ./configure
+	$(MAKE) -C ./third_party/apr
 
 libyaml: 
 	cd ./third_party/yaml && ./configure
@@ -23,6 +29,9 @@ libyaml:
 
 libyaml-clean:
 	$(MAKE) clean -C ./third_party/yaml 
+
+apr-clean:
+	$(MAKE) clean -C ./third_party/apr
 
 clean:
 	$(RM) *.o *.out eyeball
