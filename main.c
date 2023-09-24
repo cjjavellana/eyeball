@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <sys/unistd.h>
 #include <unistd.h>
+#include "mastercfg.h"
 
 typedef struct {
   char* file_to_scan;
@@ -70,6 +71,7 @@ main(int argc, char* argv[]) {
 
   read_options(&cmd_options, argc, argv);
   verify_options(&cmd_options);
+  eyeball_cfg_load(cmd_options.known_configuration);
 
   return 0; 
 }
