@@ -71,7 +71,7 @@ main(int argc, char* argv[]) {
 
   read_options(&cmd_options, argc, argv);
   verify_options(&cmd_options);
-  eyeball_cfg_load(cmd_options.known_configuration);
+  init_master_cfg(cmd_options.known_configuration);
 
   return 0; 
 }
