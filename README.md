@@ -28,6 +28,8 @@ prod: |
 ```
 
 Run eyeball as follows:
+```bash
 $ eyeball -f src/main/resources/application.yml -c master-config.yml
+```
 
 
