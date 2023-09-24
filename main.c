@@ -9,7 +9,7 @@ typedef struct {
 } cmd_options;
 
 /**
-*
+* How to use this thing.
 */
 static void
 show_usage() {
@@ -22,10 +22,8 @@ show_usage() {
 }
 
 /**
-* read_options verifies that: 
-* 1. There is one and only 1 argument
-* 2. argv[1] refers to a valid file
-*/
+ * Parses command line arguments and populates the cmd_options struct.
+ */
 static void 
 read_options(
   cmd_options *cmd_options, const int argc, char* argv[]) {
@@ -44,6 +42,11 @@ read_options(
   }
 }
 
+/**
+* verify_options verifies that: 
+* 1. File to scan is not null and exists. 
+* 2. The known configuration master list exists.
+*/
 static void
 verify_options(cmd_options *cmd_options) {
   if(cmd_options->file_to_scan == NULL ||
