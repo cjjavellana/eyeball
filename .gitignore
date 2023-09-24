@@ -9,5 +9,9 @@ third_party/yaml/tests/run-*
 third_party/yaml/tests/example-*
 third_party/yaml/src/.libs
 third_party/yaml/tests/.libs
-third_party/yaml/src/*.lo
-third_party/yaml/src/*.la
+
+third_party/apr
+
+**/*.lo
+**/*.la
+
