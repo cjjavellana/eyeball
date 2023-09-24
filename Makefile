@@ -21,6 +21,8 @@ libyaml:
 	# Reference: https://gist.github.com/loderunner/b6846dd82967ac048439
 	rm -f ./third_party/yaml/src/.libs/*.dylib
 
+libyaml-clean:
+	$(MAKE) clean -C ./third_party/yaml 
+
 clean:
 	$(RM) *.o *.out eyeball
-	$(MAKE) clean -C ./third_party/yaml 
