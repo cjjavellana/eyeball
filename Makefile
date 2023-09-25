@@ -6,7 +6,7 @@ all: clean libyaml apr main
 onlyme: clean main
 
 main: main.o mastercfg.o 
-	$(CC) main.o mastercfg.o -L./third_party/yaml/src/.libs -o eyeball -lyaml
+	$(CC) main.o mastercfg.o -L./third_party/apr/.libs -L./third_party/yaml/src/.libs -o eyeball -lyaml -lapr-1
 
 main.o: main.c
 	$(CC) -c main.c 
@@ -17,6 +17,7 @@ mastercfg.o: mastercfg.c
 apr:
 	cd ./third_party/apr && ./configure
 	$(MAKE) -C ./third_party/apr
+	rm -f ./third_party/apr/.libs/*.dylib
 
 libyaml: 
 	cd ./third_party/yaml && ./configure
