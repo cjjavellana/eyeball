@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-g3 -Wall YAML_DECLARE_STATIC=1
+CFLAGS=-g3 -Wall 
 
 all: clean libyaml apr main
 
@@ -9,10 +9,10 @@ main: main.o mastercfg.o
 	$(CC) main.o mastercfg.o -L./third_party/apr/.libs -L./third_party/yaml/src/.libs -o eyeball -lyaml -lapr-1
 
 main.o: main.c
-	$(CC) -c main.c 
+	$(CC) $(CFLAGS) -c main.c 
 
 mastercfg.o: mastercfg.c
-	$(CC) -c mastercfg.c 
+	$(CC) $(CFLAGS) -c mastercfg.c 
 
 apr:
 	cd ./third_party/apr && ./configure
