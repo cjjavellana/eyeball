@@ -11,6 +11,7 @@ third_party/yaml/src/.libs
 third_party/yaml/tests/.libs
 
 third_party/apr
+third_party/pcre2
 
 **/*.lo
 **/*.la
