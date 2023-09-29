@@ -15,26 +15,6 @@
 #include "third_party/pcre2/src/pcre2.h"
 #include "third_party/yaml/include/yaml.h"
 
-
-// static void
-// parse_internal(yaml_parser_t *parser, yaml_event_t *event) {
-// 
-//   while(1) {
-//     yaml_parser_parse(parser, event)  ;
-//     
-//     printf("[INFO] Event found: %x\n", event->type);
-// 
-//     if(event->type == YAML_SCALAR_EVENT) {
-//       
-//     } else if(event->type == YAML_MAPPING_END_EVENT ||
-//       event->type == YAML_STREAM_END_EVENT) {
-//       break;
-//     }
-// 
-//     yaml_event_delete(event);
-//   }
-// }
-
 /**
  * Extracts key key/value pair from _token_to_parse_ and assigns the key token 
  * to kv->key and value token to kv->value
