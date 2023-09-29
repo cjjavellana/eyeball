@@ -3,6 +3,10 @@
 #include <sys/unistd.h>
 #include <unistd.h>
 #include "mastercfg.h"
+#include "third_party/apr/include/apr_general.h"
+#include "third_party/apr/include/apr_pools.h"
+#include "third_party/apr/include/apr.h"
+
 
 typedef struct {
   char* file_to_scan;
@@ -65,13 +69,23 @@ verify_options(cmd_options *cmd_options) {
   }
 }
 
+/**
+* Initializes Apache Portable Runtime
+*/
+static void
+init_apr() {
+  apr_initialize();
+}
+
 int 
 main(int argc, char* argv[]) {
   cmd_options cmd_options;
+  master_cfg master_cfg;
 
+  init_apr();
   read_options(&cmd_options, argc, argv);
   verify_options(&cmd_options);
-  init_master_cfg(cmd_options.known_configuration);
+  init_master_cfg(&master_cfg, cmd_options.known_configuration);
 
   return 0; 
 }
