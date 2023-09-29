@@ -3,6 +3,7 @@
 #include <sys/unistd.h>
 #include <unistd.h>
 #include "mastercfg.h"
+#include "subjectcfg.h"
 #include "third_party/apr/include/apr_general.h"
 #include "third_party/apr/include/apr_pools.h"
 #include "third_party/apr/include/apr.h"
@@ -117,13 +118,20 @@ dump_master_cfg(master_cfg *cfg) {
 int 
 main(int argc, char* argv[]) {
   cmd_options cmd_options;
+  // the master configuration file. Considered to be the source of truth.
+  // values in the master_cfg are considered to be correct. This is where the 
+  // configuration of subject_cfg will be compared to
   master_cfg master_cfg;
+
+  // the configuration to be verified will be written to
+  subject_cfg subject_cfg;
 
   init_apr();
   read_options(&cmd_options, argc, argv);
   verify_options(&cmd_options);
   init_master_cfg(&master_cfg, cmd_options.known_configuration);
   dump_master_cfg(&master_cfg);
+  init_subject_cfg(&subject_cfg, cmd_options.file_to_scan);
 
   return 0; 
 }

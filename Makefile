@@ -5,14 +5,17 @@ all: clean libyaml apr main
 
 onlyme: clean main
 
-main: main.o mastercfg.o 
-	$(CC) main.o mastercfg.o -L./third_party/apr/.libs -L./third_party/yaml/src/.libs -L./third_party/pcre2/.libs -o eyeball -lyaml -lapr-1 -lpcre2-8
+main: main.o mastercfg.o subjectcfg.o
+	$(CC) main.o mastercfg.o subjectcfg.o -L./third_party/apr/.libs -L./third_party/yaml/src/.libs -L./third_party/pcre2/.libs -o eyeball -lyaml -lapr-1 -lpcre2-8
 
 main.o: main.c
 	$(CC) $(CFLAGS) -c main.c 
 
 mastercfg.o: mastercfg.c
 	$(CC) $(CFLAGS) -c mastercfg.c
+
+subjectcfg.o: subjectcfg.c
+	$(CC) $(CFLAGS) -c subjectcfg.c
 
 pcre2:
 	cd ./third_party/pcre2 && ./configure
