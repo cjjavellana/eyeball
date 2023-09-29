@@ -110,8 +110,6 @@ init_per_env_cfg_table(apr_table_t* env_table, char* env_settings) {
     key_value_pair kv;
     extract_key_value_pair(&kv, token);
 
-    printf("[INFO] Key: %s, Value: %s\n", kv.key, kv.value);
-
     // set the extracted key-value pair into the env table
     apr_table_set(env_table, kv.key, kv.value);
     
@@ -148,8 +146,6 @@ init_master_cfg(master_cfg* master_cfg, char* known_configuration) {
     exit(EXIT_FAILURE);
   }
 
-  printf("[INFO] APR Pool Initialized at %p\n", &pool);
-
   // variable used to switch whether we have read a key token or a value token
   int state = 0;
   // variable used to hold the token read by the parser
@@ -166,8 +162,6 @@ init_master_cfg(master_cfg* master_cfg, char* known_configuration) {
       case YAML_VALUE_TOKEN: state = 1; break;
       case YAML_SCALAR_TOKEN:
         tk = token.data.scalar.value;
-
-        printf("[INFO] Token: %s State: %d\n", tk, state);
 
         if(state == 0) {
           // YAML Key i.e. the environments
