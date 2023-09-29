@@ -6,7 +6,12 @@
 #include "third_party/apr/include/apr_general.h"
 #include "third_party/apr/include/apr_pools.h"
 #include "third_party/apr/include/apr.h"
+#include "third_party/apr/include/apr_tables.h"
 
+typedef struct {
+  int count;
+  int nelems;
+} iter_ctx;
 
 typedef struct {
   char* file_to_scan;
@@ -77,6 +82,38 @@ init_apr() {
   apr_initialize();
 }
 
+static int
+print_key_value_pair(void *rec, const char *key, const char *value) {
+  printf("[INFO] Key: %s, Value: %s\n", key, value);
+  iter_ctx *ctx = (iter_ctx *) rec;
+  ctx->count = ctx->count + 1;
+
+  // While we still have element return non-zero.
+  return (ctx->count < ctx->nelems) ? 1 : 0;
+}
+
+static void
+dump_master_cfg(master_cfg *cfg) {
+  for(int i = 0; i < cfg->element_count; i++) {
+    printf("Env: %s\n", cfg->env[i]);
+    apr_array_header_t *table_header = (apr_array_header_t *) apr_table_elts(cfg->cfg[i]);
+    printf("Elements: %d\n", table_header->nelts);
+
+    // iteration context, keeps track of the iteration process
+    // used to decide whether we've reached the end of the table or not.
+    iter_ctx ctx;
+    ctx.count = 0;
+    ctx.nelems = table_header->nelts;
+
+    apr_table_do(
+      print_key_value_pair, 
+      &ctx, 
+      cfg->cfg[i], 
+      NULL
+    );
+  }
+}
+
 int 
 main(int argc, char* argv[]) {
   cmd_options cmd_options;
@@ -86,6 +123,7 @@ main(int argc, char* argv[]) {
   read_options(&cmd_options, argc, argv);
   verify_options(&cmd_options);
   init_master_cfg(&master_cfg, cmd_options.known_configuration);
+  dump_master_cfg(&master_cfg);
 
   return 0; 
 }

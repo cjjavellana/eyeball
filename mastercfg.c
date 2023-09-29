@@ -41,7 +41,6 @@
  */
 static void
 extract_key_value_pair(key_value_pair *kv, char *token_to_parse) {
-  // 
   int error_code;
   PCRE2_SIZE error_offset;
   pcre2_code *re = pcre2_compile(
@@ -77,10 +76,17 @@ extract_key_value_pair(key_value_pair *kv, char *token_to_parse) {
   } else if (rc > 0) {
     PCRE2_SIZE *ovector = pcre2_get_ovector_pointer(match_data);
     PCRE2_SIZE i;
-    for(i = 0; i < rc; i++) {
+    for(i = 1; i < rc; i++) {
       PCRE2_SPTR start = (PCRE2_UCHAR8 *) token_to_parse + ovector[2*i];
       PCRE2_SIZE slen = ovector[2*i+1] - ovector[2*i];
-      printf("[INFO] Match %2d: %.*s\n", (int) i, (int) slen, (char *) start);
+
+      char *found_data = malloc(slen);    // allocate space in the heap equal to the length of the matched string
+      sprintf(found_data, "%.*s", (int) slen, (char *) start); // write the matched string into found_data buffer
+      if(i == 1) {
+        kv->key = found_data;
+      } else if(i == 2) {
+        kv->value = found_data;
+      }
     }
   } else {
     printf("[INFO] No match found: %s\n", token_to_parse);
@@ -99,12 +105,12 @@ static void
 init_per_env_cfg_table(apr_table_t* env_table, char* env_settings) {
   char* token = strtok(env_settings, "\n");
   while(token != NULL) {
-    printf("Value: %s\n", token);
-    
     // at this point, token is in the format of:
     // spring.data.jpa.url: jdbc:mariadb://localhost:3306/db1
     key_value_pair kv;
     extract_key_value_pair(&kv, token);
+
+    printf("[INFO] Key: %s, Value: %s\n", kv.key, kv.value);
 
     // set the extracted key-value pair into the env table
     apr_table_set(env_table, kv.key, kv.value);
@@ -188,7 +194,7 @@ init_master_cfg(master_cfg* master_cfg, char* known_configuration) {
     }
   } while(token.type != YAML_STREAM_END_TOKEN);
 
-  master_cfg->element_count = env_index + 1;
+  master_cfg->element_count = env_index;
 
   yaml_token_delete(&token);
   yaml_parser_delete(&parser);
