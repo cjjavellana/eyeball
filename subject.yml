@@ -1,14 +1,14 @@
 spring:
-  elastic:
-    url:
-      - https://elastic01.com
-      - https://elastic02.com
-      - https://elastic03.com
   data:
     jpa:
       url: jdbc:mariadb://localhost:3306/db1
       username: root
       password: root
+  elastic:
+    url:
+      - https://elastic01.com
+      - https://elastic02.com
+      - https://elastic03.com
 google:
   url: https://www.google.com
 twitter:
