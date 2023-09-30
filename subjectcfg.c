@@ -27,27 +27,22 @@ print_values(
 * For nested elements, we need to concatenate the old key with the new key. Separated by a period.
 */
 static char *
-generate_key(
-  const char *key,
+concat(
   const char *old_key,
   const char *yaml_key
 ) {
-  if(key == NULL) {
-    return strdup(yaml_key);
-  } else {
-    char *k = NULL;
-    if(old_key != NULL) {
-      k = malloc(strlen(old_key) + strlen(yaml_key) + 2);
-      strcpy(k, old_key);
-      strcat(k, ".");
-      strcat(k, yaml_key);
-    } else {
-      k = malloc(strlen(yaml_key) + 1);
-      strcat(k, yaml_key);
-    }
+   char *k = NULL;
+   if(old_key != NULL) {
+     k = malloc(strlen(old_key) + strlen(yaml_key) + 2);
+     strcpy(k, old_key);
+     strcat(k, ".");
+     strcat(k, yaml_key);
+   } else {
+     k = malloc(strlen(yaml_key) + 1);
+     strcat(k, yaml_key);
+   }
 
-    return k;
-  }
+   return k;
 }
 
 static void
@@ -69,7 +64,8 @@ parse_internal(
       if (yaml_value) {
         print_values(key, &seq_count, value);
       } else {
-        key = generate_key(key, old_key, value);
+        // if the key is null, then we're at the top level
+        key = (!key) ? strdup(value): concat(old_key, value);
       }
       yaml_value ^= VAL; 
     }
