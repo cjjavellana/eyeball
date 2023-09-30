@@ -1,0 +1,14 @@
+dev: |
+  spring.data.jpa.url: jdbc:mariadb://localhost:3306/db1
+  google.url: https://www.google.com
+uat: |
+  spring.data.jpa.url: jdbc:mariadb://localhost:3306/db2
+  google.url: https://www.google.com
+preprod: |
+  spring.data.jpa.url: jdbc:mariadb://localhost:3306/db3
+  google.url: https://www.google.com
+prod: |
+  spring.data.jpa.url: jdbc:mariadb://localhost:3306/db4
+  google.url: https://www.google.com
+  twitter.url: https://www.twitter.com
+  instagram.url: https://www.instagram.com
