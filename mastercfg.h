@@ -25,6 +25,7 @@ typedef struct {
 
   // The total number of environments in the master_cfg struct
   unsigned short  element_count;
+  apr_pool_t*     pool;
 } master_cfg;
 
 typedef struct {

@@ -105,7 +105,6 @@ void
 init_master_cfg(master_cfg* master_cfg, char* known_configuration) {
   yaml_parser_t parser;
   yaml_token_t token;
-  apr_pool_t *pool = NULL;
 
   /* Initial libyaml parser */
   if(!yaml_parser_initialize(&parser))
@@ -118,13 +117,6 @@ init_master_cfg(master_cfg* master_cfg, char* known_configuration) {
     fputs("Failed to open file!\n", stderr);
   
   yaml_parser_set_input_file(&parser, fh);
-
-  int apr_status = apr_pool_create(&pool, NULL);
-  if(apr_status != APR_SUCCESS) {
-    printf("[ERROR] Unable to allocate APR Pool\n");
-    apr_pool_destroy(pool);
-    exit(EXIT_FAILURE);
-  }
 
   // variable used to switch whether we have read a key token or a value token
   int state = 0;
@@ -149,7 +141,7 @@ init_master_cfg(master_cfg* master_cfg, char* known_configuration) {
         } else {
           // YAML Value
           
-          apr_table_t* t = apr_table_make(pool, MAX_ENVS_COUNT);
+          apr_table_t* t = apr_table_make(master_cfg->pool, MAX_ENVS_COUNT);
           master_cfg->cfg[env_index] = t;
 
           init_per_env_cfg_table(t, (char *)tk);

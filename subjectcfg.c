@@ -10,15 +10,25 @@ enum yaml_value {
 
 static void
 print_values(
-  char *key,        // the key parsed from the yaml element
-  int *seq_count,   // we're mutating seq_count so we need a pointer
-  char *value      // the value parsed from the yaml element
+  char *key,               // the key parsed from the yaml element
+  int *seq_count,          // we're mutating seq_count so we need a pointer
+  char *value,             // the value parsed from the yaml element
+  apr_table_t *subject_cfg // the table to store the key value pair
 ) {
+  
+  char *k = NULL;
   if(*seq_count) {
-    printf("[Value] Key: %s.%d, Value: %s\n", key, *seq_count, value);
+    k = malloc(strlen(key) + 2);
+    sprintf(k, "%s.%d", key, *seq_count);
     *seq_count += 1;
   } else {
-    printf("[Value] Key: %s, Value: %s\n", key, value);
+    k = strdup(key);
+  }
+
+  printf("[Value] Key: %s, Value: %s\n", key, value);
+
+  if(subject_cfg != NULL) {
+    apr_table_set(subject_cfg, k, value);
   }
 }
 
@@ -47,6 +57,7 @@ concat(
 
 static void
 parse_internal(
+  apr_table_t *subject_cfg,
   yaml_parser_t *parser, 
   char *key
 ) {
@@ -62,7 +73,7 @@ parse_internal(
 
     if (event.type == YAML_SCALAR_EVENT) {
       if (yaml_value) {
-        print_values(key, &seq_count, value);
+        print_values(key, &seq_count, value, subject_cfg);
       } else {
         // if the key is null, then we're at the top level
         key = (!key) ? strdup(value): concat(old_key, value);
@@ -80,7 +91,7 @@ parse_internal(
     } else if (event.type == YAML_MAPPING_START_EVENT) {
       char *k = (key) ? strdup(key) : NULL;
       printf("Mapping Start: %s\n", k);
-      parse_internal(parser, k);
+      parse_internal(subject_cfg, parser, k);
       printf("After parse_internal. Key: %s, Old: %s\n", key, old_key);
       yaml_value ^= VAL; 
     } else if (event.type == YAML_MAPPING_END_EVENT) {
@@ -113,7 +124,7 @@ init_subject_cfg(subject_cfg *subject_cfg, char *cfgfile) {
   }
 
   yaml_parser_set_input_file(&parser, fh);
-  parse_internal(&parser, NULL);
+  parse_internal(subject_cfg->cfg, &parser, NULL);
 
   // clean up
   yaml_parser_delete(&parser);

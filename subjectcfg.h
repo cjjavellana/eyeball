@@ -8,6 +8,7 @@
  */
 typedef struct {
   apr_table_t *cfg;
+  apr_pool_t *pool;
 } subject_cfg;
 
 /**

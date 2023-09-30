@@ -115,23 +115,54 @@ dump_master_cfg(master_cfg *cfg) {
   }
 }
 
+// dump the content of the subject_cfg
+static void
+dump_subject_cfg(subject_cfg *cfg) {
+  apr_array_header_t *table_header = (apr_array_header_t *) apr_table_elts(cfg->cfg);
+  printf("Elements: %d\n", table_header->nelts);
+  // iteration context, keeps track of the iteration process
+  // used to decide whether we've reached the end of the table or not.
+  iter_ctx ctx;
+  ctx.count = 0;
+  ctx.nelems = table_header->nelts;
+  apr_table_do(
+    print_key_value_pair, 
+    &ctx, 
+    cfg->cfg, 
+    NULL
+  );
+}
+
 int 
 main(int argc, char* argv[]) {
   cmd_options cmd_options;
+  
+  // initialize Apache Portable Runtime before doing anything else
+  init_apr();
+  
+  apr_pool_t *pool;
+  int apr_status = apr_pool_create(&pool, NULL);
+  if(apr_status != APR_SUCCESS) {
+    fprintf(stderr, "Error: Unable to create memory pool\n");
+    exit(EXIT_FAILURE);
+  }
   // the master configuration file. Considered to be the source of truth.
   // values in the master_cfg are considered to be correct. This is where the 
   // configuration of subject_cfg will be compared to
   master_cfg master_cfg;
+  master_cfg.pool = pool;
 
   // the configuration to be verified will be written to
   subject_cfg subject_cfg;
+  subject_cfg.pool = pool;
+  subject_cfg.cfg = apr_table_make(subject_cfg.pool, 512);
 
-  init_apr();
   read_options(&cmd_options, argc, argv);
   verify_options(&cmd_options);
   init_master_cfg(&master_cfg, cmd_options.known_configuration);
   dump_master_cfg(&master_cfg);
   init_subject_cfg(&subject_cfg, cmd_options.file_to_scan);
+  dump_subject_cfg(&subject_cfg);
 
   return 0; 
 }
