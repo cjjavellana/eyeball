@@ -9,6 +9,8 @@ spring:
       - https://elastic01.com
       - https://elastic02.com
       - https://elastic03.com
+kubernetes:
+  service: http://another-service:8080
 google:
   url: https://www.google.com
 twitter:
