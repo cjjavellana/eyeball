@@ -69,7 +69,7 @@ read_options(
 
   // If we do not have any patterns, then we'll use the default pattern
   if(pattern_count == 0) {
-    cmd_options->pattern[0] = DOMAIN_NAME_PATTERN;
+    cmd_options->pattern[0] = DOMAIN_PATTERN;
     pattern_count++;
   }
 

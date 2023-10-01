@@ -36,9 +36,10 @@ set_values(
       subject_cfg->patterns_to_match[i], 
       value_matches_pattern
     );
-  }
-  if(subject_cfg->cfg != NULL) {
-    apr_table_set(subject_cfg->cfg, k, value);
+
+    if(subject_cfg->cfg != NULL && value_matches_pattern > 0) {
+      apr_table_set(subject_cfg->cfg, k, value);
+    }
   }
 }
 
