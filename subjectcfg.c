@@ -14,7 +14,8 @@ set_values(
   char *key,               // the key parsed from the yaml element
   int *seq_count,          // we're mutating seq_count so we need a pointer
   char *value,             // the value parsed from the yaml element
-  apr_table_t *subject_cfg // the table to store the key value pair
+  subject_cfg *subject_cfg, // the table to store the key value pair
+  pcre2_code **re
 ) {
   
   char *k = NULL;
@@ -26,10 +27,18 @@ set_values(
     k = strdup(key);
   }
 
-  printf("[Value] Key: %s, Value: %s\n", key, value);
-
-  if(subject_cfg != NULL) {
-    apr_table_set(subject_cfg, k, value);
+  for(int i = 0; i < subject_cfg->pattern_count; i++) {
+    int value_matches_pattern = match_pattern(re[i], value);
+    printf(
+      "[Value] Key: %s, Value: %s, Pattern: %s, Match: %d\n", 
+      key, 
+      value, 
+      subject_cfg->patterns_to_match[i], 
+      value_matches_pattern
+    );
+  }
+  if(subject_cfg->cfg != NULL) {
+    apr_table_set(subject_cfg->cfg, k, value);
   }
 }
 
@@ -60,7 +69,8 @@ static void
 parse_internal(
   subject_cfg *subject_cfg,
   yaml_parser_t *parser, 
-  char *key
+  char *key,
+  pcre2_code **re
 ) {
 
   yaml_event_t event;
@@ -74,7 +84,7 @@ parse_internal(
 
     if (event.type == YAML_SCALAR_EVENT) {
       if (yaml_value) {
-        set_values(key, &seq_count, value, subject_cfg->cfg);
+        set_values(key, &seq_count, value, subject_cfg, re);
       } else {
         // if the key is null, then we're at the top level
         key = (!key) ? strdup(value): concat(old_key, value);
@@ -92,7 +102,7 @@ parse_internal(
     } else if (event.type == YAML_MAPPING_START_EVENT) {
       char *k = (key) ? strdup(key) : NULL;
       printf("Mapping Start: %s\n", k);
-      parse_internal(subject_cfg, parser, k);
+      parse_internal(subject_cfg, parser, k, re);
       printf("After parse_internal. Key: %s, Old: %s\n", key, old_key);
       yaml_value ^= VAL; 
     } else if (event.type == YAML_MAPPING_END_EVENT) {
@@ -132,9 +142,12 @@ init_subject_cfg(subject_cfg *subject_cfg, char *cfgfile) {
     re[i] = compile_pattern(subject_cfg->patterns_to_match[i]);
   }
 
-  parse_internal(subject_cfg, &parser, NULL);
+  parse_internal(subject_cfg, &parser, NULL, re);
 
   // clean up
+  for(int i = 0; i < subject_cfg->pattern_count; i++) {
+    pcre2_code_free(re[i]);
+  }
   yaml_parser_delete(&parser);
   fclose(fh);
 }

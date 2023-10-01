@@ -11,3 +11,12 @@
 */
 pcre2_code *
 compile_pattern(const char *filter_pattern);
+
+/**
+* Matches the pattern against the subject string.
+*
+* Returns Non-zerp if the pattern matches the subject string, 0 otherwise.
+*/
+int 
+match_pattern(pcre2_code *re, const char *subject);
+

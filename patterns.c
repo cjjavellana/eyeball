@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 #include "patterns.h"
 
 pcre2_code *
@@ -27,3 +28,19 @@ compile_pattern(const char *filter_pattern) {
   return re;
 }
 
+int
+match_pattern(pcre2_code_8 *re, const char *subject) {
+  pcre2_match_data *match_data = pcre2_match_data_create_from_pattern(re, NULL);
+  int rc = pcre2_match(
+    re,
+    (const unsigned char *) subject,
+    strlen(subject),
+    0,
+    0,
+    match_data,
+    NULL
+  );
+
+  pcre2_match_data_free(match_data);   /* Release memory used for the match */
+  return rc;
+}
