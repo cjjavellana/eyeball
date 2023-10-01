@@ -4,10 +4,14 @@
 #include <unistd.h>
 #include "mastercfg.h"
 #include "subjectcfg.h"
+#include "filter.h"
 #include "third_party/apr/include/apr_general.h"
 #include "third_party/apr/include/apr_pools.h"
 #include "third_party/apr/include/apr.h"
 #include "third_party/apr/include/apr_tables.h"
+
+#define MAX_CONFIG_PER_FILE 512
+#define MAX_PATTERN 64
 
 typedef struct {
   int count;
@@ -15,8 +19,10 @@ typedef struct {
 } iter_ctx;
 
 typedef struct {
-  char* file_to_scan;
-  char* known_configuration;
+  char *file_to_scan;
+  char *known_configuration;
+  char **pattern;
+  int pattern_count;
 } cmd_options;
 
 /**
@@ -26,7 +32,7 @@ static void
 show_usage() {
   printf("\n");
   printf("Usage:\n");
-  printf("$ eyeball -f <name of the file to scan> -c <configuration file>\n");
+  printf("$ eyeball -f <name of the file to scan> -c <configuration file> [-p <pattern1> -p <pattern2>]\n");
   printf("\n");
   printf("Supports: yml and java properties file formats\n");
   printf("For more information visit: https://github.io/eyeball");
@@ -39,9 +45,9 @@ static void
 read_options(
   cmd_options *cmd_options, const int argc, char* argv[]) {
 
+  int pattern_count = 0;
   int opt;
-
-  while((opt = getopt(argc, argv, "f:c:")) != -1) {
+  while((opt = getopt(argc, argv, "f:c:p:")) != -1) {
     switch (opt) {
       case 'f':
         cmd_options->file_to_scan = optarg;
@@ -49,8 +55,25 @@ read_options(
       case 'c':
         cmd_options->known_configuration = optarg;
         break;
+      case 'p':
+        cmd_options->pattern[pattern_count] = optarg;
+        pattern_count++;
+        if(pattern_count >= MAX_PATTERN) {
+          fprintf(stderr, "Error: Too many patterns\n");
+          show_usage();
+          exit(EXIT_FAILURE);
+        }
+        break;
     }
   }
+
+  // If we do not have any patterns, then we'll use the default pattern
+  if(pattern_count == 0) {
+    cmd_options->pattern[0] = DOMAIN_NAME_PATTERN;
+    pattern_count++;
+  }
+
+  cmd_options->pattern_count = pattern_count;
 }
 
 /**
@@ -155,7 +178,7 @@ main(int argc, char* argv[]) {
   // the configuration to be verified will be written to
   subject_cfg subject_cfg;
   subject_cfg.pool = pool;
-  subject_cfg.cfg = apr_table_make(subject_cfg.pool, 512);
+  subject_cfg.cfg = apr_table_make(subject_cfg.pool, MAX_CONFIG_PER_FILE);
 
   read_options(&cmd_options, argc, argv);
   verify_options(&cmd_options);
@@ -163,6 +186,9 @@ main(int argc, char* argv[]) {
   dump_master_cfg(&master_cfg);
   init_subject_cfg(&subject_cfg, cmd_options.file_to_scan);
   dump_subject_cfg(&subject_cfg);
+  
+  filter_pattern fp = { .patterns = cmd_options.pattern, .patterns_count = cmd_options.pattern_count };
+  filter_unrelated_cfg(subject_cfg.cfg, &fp);
 
   return 0; 
 }
