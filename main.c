@@ -81,11 +81,8 @@ read_options(
   }
 
   // set selected environment defaults
-  if(cmd_options->env == NULL) {
-    cmd_options->env = malloc(4 /* prod */ + 1 /* terminal char */);
-    strcpy(cmd_options->env, "prod");
-  }
-
+  if(cmd_options->env == NULL) cmd_options->env = "prod";
+  
   cmd_options->pattern_count = pattern_count;
 }
 
