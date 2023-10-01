@@ -1,3 +1,6 @@
+#ifndef MASTERCFG_H
+#define MASTERCFG_H
+
 #include "third_party/apr/include/apr.h"
 #include "third_party/apr/include/apr_hash.h"
 #include "third_party/apr/include/apr_tables.h"
@@ -21,11 +24,12 @@
  */
 typedef struct {
   char*           env[MAX_ENVS_COUNT];
-  apr_table_t*     cfg[MAX_ENVS_COUNT];
+  apr_table_t*    cfg[MAX_ENVS_COUNT];
 
   // The total number of environments in the master_cfg struct
   unsigned short  element_count;
   apr_pool_t*     pool;
+  char*           selected_env;
 } master_cfg;
 
 typedef struct {
@@ -39,3 +43,4 @@ typedef struct {
 void
 init_master_cfg(master_cfg* master_cfg, char* known_configuration);
 
+#endif

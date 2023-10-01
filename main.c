@@ -1,10 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/unistd.h>
 #include <unistd.h>
 #include "mastercfg.h"
 #include "subjectcfg.h"
 #include "patterns.h"
+#include "verifier.h"
+
 #include "third_party/apr/include/apr_general.h"
 #include "third_party/apr/include/apr_pools.h"
 #include "third_party/apr/include/apr.h"
@@ -21,6 +24,7 @@ typedef struct {
 typedef struct {
   char *file_to_scan;
   char *known_configuration;
+  char *env;
   char **pattern;
   int pattern_count;
 } cmd_options;
@@ -32,7 +36,7 @@ static void
 show_usage() {
   printf("\n");
   printf("Usage:\n");
-  printf("$ eyeball -f <name of the file to scan> -c <configuration file> [-p <pattern1> -p <pattern2>]\n");
+  printf("$ eyeball -f <name of the file to scan> -c <configuration file> -e <environment e.g. dev/uat/prod> [-p <pattern1> -p <pattern2>]\n");
   printf("\n");
   printf("Supports: yml and java properties file formats\n");
   printf("For more information visit: https://github.io/eyeball");
@@ -47,13 +51,16 @@ read_options(
 
   int pattern_count = 0;
   int opt;
-  while((opt = getopt(argc, argv, "f:c:p:")) != -1) {
+  while((opt = getopt(argc, argv, "f:c:p:e:")) != -1) {
     switch (opt) {
       case 'f':
         cmd_options->file_to_scan = optarg;
         break;
       case 'c':
         cmd_options->known_configuration = optarg;
+        break;
+      case 'e':
+        cmd_options->env = optarg;
         break;
       case 'p':
         cmd_options->pattern[pattern_count] = optarg;
@@ -71,6 +78,12 @@ read_options(
   if(pattern_count == 0) {
     cmd_options->pattern[0] = DOMAIN_PATTERN;
     pattern_count++;
+  }
+
+  // set selected environment defaults
+  if(cmd_options->env == NULL) {
+    cmd_options->env = malloc(4 /* prod */ + 1 /* terminal char */);
+    strcpy(cmd_options->env, "prod");
   }
 
   cmd_options->pattern_count = pattern_count;
@@ -159,6 +172,7 @@ dump_subject_cfg(subject_cfg *cfg) {
 int 
 main(int argc, char* argv[]) {
   cmd_options cmd_options;
+  cmd_options.env = NULL;
   
   // initialize Apache Portable Runtime before doing anything else
   init_apr();
@@ -169,14 +183,16 @@ main(int argc, char* argv[]) {
     fprintf(stderr, "Error: Unable to create memory pool\n");
     exit(EXIT_FAILURE);
   }
+  read_options(&cmd_options, argc, argv);
+  verify_options(&cmd_options);
+
   // the master configuration file. Considered to be the source of truth.
   // values in the master_cfg are considered to be correct. This is where the 
   // configuration of subject_cfg will be compared to
   master_cfg master_cfg;
   master_cfg.pool = pool;
+  master_cfg.selected_env = cmd_options.env;
 
-  read_options(&cmd_options, argc, argv);
-  verify_options(&cmd_options);
   init_master_cfg(&master_cfg, cmd_options.known_configuration);
   dump_master_cfg(&master_cfg);
 
@@ -190,5 +206,6 @@ main(int argc, char* argv[]) {
   init_subject_cfg(&subject_cfg, cmd_options.file_to_scan);
   dump_subject_cfg(&subject_cfg);
   
-  return 0; 
+  return verify_subject_cfg(&subject_cfg, &master_cfg); 
+
 }

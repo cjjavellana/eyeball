@@ -1,3 +1,6 @@
+#ifndef SUBJECTCFG_H
+#define SUBJECTCFG_H
+
 #include "third_party/apr/include/apr_tables.h"
 
 /**
@@ -23,3 +26,5 @@ typedef struct {
 */
 void
 init_subject_cfg(subject_cfg *subject_cfg, char *cfgfile);
+
+#endif
