@@ -4,7 +4,7 @@
 #include <unistd.h>
 #include "mastercfg.h"
 #include "subjectcfg.h"
-#include "filter.h"
+#include "patterns.h"
 #include "third_party/apr/include/apr_general.h"
 #include "third_party/apr/include/apr_pools.h"
 #include "third_party/apr/include/apr.h"
@@ -175,20 +175,20 @@ main(int argc, char* argv[]) {
   master_cfg master_cfg;
   master_cfg.pool = pool;
 
-  // the configuration to be verified will be written to
-  subject_cfg subject_cfg;
-  subject_cfg.pool = pool;
-  subject_cfg.cfg = apr_table_make(subject_cfg.pool, MAX_CONFIG_PER_FILE);
-
   read_options(&cmd_options, argc, argv);
   verify_options(&cmd_options);
   init_master_cfg(&master_cfg, cmd_options.known_configuration);
   dump_master_cfg(&master_cfg);
+
+  // the configuration to be verified will be written to
+  subject_cfg subject_cfg;
+  subject_cfg.pool = pool;
+  subject_cfg.cfg = apr_table_make(subject_cfg.pool, MAX_CONFIG_PER_FILE);
+  subject_cfg.patterns_to_match = cmd_options.pattern;
+  subject_cfg.pattern_count = cmd_options.pattern_count;
+
   init_subject_cfg(&subject_cfg, cmd_options.file_to_scan);
   dump_subject_cfg(&subject_cfg);
   
-  filter_pattern fp = { .patterns = cmd_options.pattern, .patterns_count = cmd_options.pattern_count };
-  filter_unrelated_cfg(subject_cfg.cfg, &fp);
-
   return 0; 
 }

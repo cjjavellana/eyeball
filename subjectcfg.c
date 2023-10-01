@@ -1,15 +1,16 @@
-#include "subjectcfg.h"
-#include "third_party/yaml/include/yaml.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "subjectcfg.h"
+#include "patterns.h"
+#include "third_party/yaml/include/yaml.h"
 
 enum yaml_value {
   KEY, VAL, SEQ
 };
 
 static void
-print_values(
+set_values(
   char *key,               // the key parsed from the yaml element
   int *seq_count,          // we're mutating seq_count so we need a pointer
   char *value,             // the value parsed from the yaml element
@@ -57,7 +58,7 @@ concat(
 
 static void
 parse_internal(
-  apr_table_t *subject_cfg,
+  subject_cfg *subject_cfg,
   yaml_parser_t *parser, 
   char *key
 ) {
@@ -73,7 +74,7 @@ parse_internal(
 
     if (event.type == YAML_SCALAR_EVENT) {
       if (yaml_value) {
-        print_values(key, &seq_count, value, subject_cfg);
+        set_values(key, &seq_count, value, subject_cfg->cfg);
       } else {
         // if the key is null, then we're at the top level
         key = (!key) ? strdup(value): concat(old_key, value);
@@ -124,7 +125,14 @@ init_subject_cfg(subject_cfg *subject_cfg, char *cfgfile) {
   }
 
   yaml_parser_set_input_file(&parser, fh);
-  parse_internal(subject_cfg->cfg, &parser, NULL);
+
+  printf("[INFO Number of patterns: %d\n", subject_cfg->pattern_count);
+  pcre2_code *re[subject_cfg->pattern_count];
+  for(int i = 0; i < subject_cfg->pattern_count; i++) {
+    re[i] = compile_pattern(subject_cfg->patterns_to_match[i]);
+  }
+
+  parse_internal(subject_cfg, &parser, NULL);
 
   // clean up
   yaml_parser_delete(&parser);

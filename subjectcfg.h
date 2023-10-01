@@ -7,8 +7,10 @@
  * The subject_cfg struct can only hold a single environment's worth of configuration. 
  */
 typedef struct {
-  apr_table_t *cfg;
-  apr_pool_t *pool;
+  apr_table_t *cfg;                 // Where the parsed configuration will be written
+  apr_pool_t  *pool;                // The memory pool to use for the cfg table
+  char        **patterns_to_match;  // The patterns of the values to match
+  int         pattern_count;       // The number of patterns to match
 } subject_cfg;
 
 /**
