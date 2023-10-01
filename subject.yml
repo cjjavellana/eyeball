@@ -11,6 +11,7 @@ spring:
       - https://elastic03.com
 kubernetes:
   service: http://another-service:8080
+  service-without-protocol: this-that-service:8686
 google:
   url: https://www.google.com
 twitter:
