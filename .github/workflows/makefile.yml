@@ -14,5 +14,8 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - name: Install dependencies
+    - name: Build
       run: make
+
+    - name: Test
+      run: ./eyeball -f subject.yml -c demo.yml -p "^(jdbc:mariadb|https?)://(.*)(:\\d+)?(\/.*)?$" -p "^([a-zA-Z0-9.-])+(:\\d{2,4})$"
