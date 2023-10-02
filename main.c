@@ -25,7 +25,7 @@ typedef struct {
   char *file_to_scan;
   char *known_configuration;
   char *env;
-  char **pattern;
+  char *pattern[MAX_PATTERN];
   int pattern_count;
 } cmd_options;
 
