@@ -6,7 +6,7 @@ all: clean libyaml apr main
 onlyme: clean main
 
 main: main.o mastercfg.o subjectcfg.o patterns.o verifier.o
-	$(CC) main.o mastercfg.o subjectcfg.o patterns.o verifier.o -L./third_party/apr/.libs -L./third_party/yaml/src/.libs -L./third_party/pcre2/.libs -o eyeball -lyaml -lapr-1 -lpcre2-8
+	$(CC) main.o mastercfg.o subjectcfg.o patterns.o verifier.o ./third_party/apr/.libs/libapr-1.a ./third_party/yaml/src/.libs/libyaml.a ./third_party/pcre2/.libs/libpcre2-8.a -o eyeball 
 
 main.o: main.c
 	$(CC) $(CFLAGS) -c main.c 
