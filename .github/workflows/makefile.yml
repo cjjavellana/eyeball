@@ -9,13 +9,21 @@ on:
 jobs:
   build:
 
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+        matrix:
+            os: [ubuntu-latest, macos-latest]
 
     steps:
     - uses: actions/checkout@v3
 
+    - if: matrix.os == 'macos-latest'
+      run: |
+        brew update
+        brew install automake
+
     - name: Build
       run: make
-
-    - name: Examine built artifact
-      run: ls -ltrh && ldd eyeball 
+      env:
+        CI: true
