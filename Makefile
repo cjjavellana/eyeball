@@ -34,7 +34,7 @@ apr:
 	rm -f ./third_party/apr/.libs/*.dylib
 
 libyaml: 
-	cd ./third_party/yaml && ./configure
+	cd ./third_party/yaml && autoreconf -f -i && ./configure
 	$(MAKE) -C ./third_party/yaml
 	# By default Mac's linker will choose the dynamic library than the static library
 	# Thus, delete the dynamic library from the library scan path
