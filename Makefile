@@ -1,7 +1,7 @@
 CC=gcc
 CFLAGS=-g3 -Wall 
 
-all: clean libyaml apr main
+all: clean libyaml apr pcre2 main
 
 onlyme: clean main
 
@@ -24,7 +24,7 @@ verifier.o: verifier.c
 	$(CC) $(CFLAGS) -c verifier.c
 
 pcre2:
-	cd ./third_party/pcre2 && ./configure
+	cd ./third_party/pcre2 && autoreconf -f -i && ./configure
 	$(MAKE) -C ./third_party/pcre2
 	rm -f ./third_party/pcre2/.libs/*.dylib
 
