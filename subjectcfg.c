@@ -88,7 +88,7 @@ parse_internal(
         set_values(key, &seq_count, value, subject_cfg, re);
       } else {
         // if the key is null, then we're at the top level
-        key = (!key) ? strdup(value): concat(old_key, value);
+        key = (old_key) ? concat(old_key, value) : strdup(value);
       }
       yaml_value ^= VAL; 
     }
@@ -105,6 +105,7 @@ parse_internal(
       printf("Mapping Start: %s\n", k);
       parse_internal(subject_cfg, parser, k, re);
       printf("After parse_internal. Key: %s, Old: %s\n", key, old_key);
+      free(k);
       yaml_value ^= VAL; 
     } else if (event.type == YAML_MAPPING_END_EVENT) {
       printf("Mapping End \n");
