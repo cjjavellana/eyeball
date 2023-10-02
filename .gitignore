@@ -4,12 +4,8 @@ eyeball
 *.gch
 *.log
 
-# Ignore libyaml generated files
-third_party/yaml/tests/run-*
-third_party/yaml/tests/example-*
-third_party/yaml/src/.libs
-third_party/yaml/tests/.libs
-
+# Ignore build generated files
+third_party/yaml
 third_party/apr
 third_party/pcre2
 
