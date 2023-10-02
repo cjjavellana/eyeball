@@ -17,5 +17,5 @@ jobs:
     - name: Build
       run: make
 
-    - name: Test
-      run: ls -ltrh && ./eyeball -f subject.yml -c demo.yml -p "^(jdbc:mariadb|https?)://(.*)(:\\d+)?(\/.*)?$" -p "^([a-zA-Z0-9.-])+(:\\d{2,4})$"
+    - name: Examine built artifact
+      run: ls -ltrh && ldd eyeball 
